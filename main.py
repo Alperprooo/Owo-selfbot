@@ -97,8 +97,6 @@ async def say(ctx, *, args):
     if ctx.author.id==ownerid:
         await ctx.send(args)
 
-
-
 @bot.event
 async def on_message(message):
     user=bot.get_user(bot.user.id)
@@ -108,7 +106,20 @@ async def on_message(message):
                 member = message.guild.get_member(bot.user.id)
                 if f"{member.display_name}! Please complete your captcha" in message.content:
                     spam.cancel()
-                
+        elif message.author.id==ownerid:
+            if f"{self_bot_prefix}say" in message.content:
+                msg = message.content.split(" ",1)[1]
+                await message.channel.send(msg)
+            elif f"{self_bot_prefix}grind" in message.content:
+                await message.delete()
+                await message.channel.send("Ok, let's go")
+                spam.start()
+
+            elif f"{self_bot_prefix}hold" in message.content:
+                await message.delete()
+                await message.channel.send('Got it bro!')
+                spam.cancel()
+
     elif message.channel==user.dm_channel:
         if message.author.id==owoid:
             if "Are you a real human?" in message.content:
@@ -129,18 +140,6 @@ async def on_message(message):
                 user=bot.get_user(owoid)
                 await user.send(captcha)
             
-        
-@bot.command()
-async def hold(ctx, *, args:str = None):
-    await ctx.message.delete()
-    await ctx.send('Got it bro!')
-    spam.cancel()
-    
-@bot.command()
-async def grind(ctx, *, args:str = None):
-    await ctx.message.delete()
-    await ctx.send("Ok, let's go")
-    spam.start()
 
 try:
     bot.run(f"{token}")
