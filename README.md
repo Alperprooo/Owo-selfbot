@@ -1,5 +1,15 @@
 # Owo-selfbot
 
+## Installation
+- Run these commands in your command prompt to install all required modules for the functioning of this selfbot
+```sh
+pip install discord
+```
+```sh
+pip install discord.py-self
+```
+
+
 ## Key Features 
 - 24/7 hrs running self bot 
 - Stops on owo's captcha 
