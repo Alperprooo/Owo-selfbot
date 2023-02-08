@@ -94,7 +94,7 @@ async def on_ready():
 
 @bot.command()
 async def say(ctx, *, args):
-    if ctx.author.id==owner:
+    if ctx.author.id==ownerid:
         await ctx.send(args)
 
 
