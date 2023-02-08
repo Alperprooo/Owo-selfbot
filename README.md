@@ -1,6 +1,7 @@
 # Owo-selfbot
 
 ## Installation
+### Step 1
 - Run these commands in your command prompt to install all required modules for the functioning of this selfbot
 ```sh
 pip install discord
@@ -8,6 +9,15 @@ pip install discord
 ```sh
 pip install discord.py-self
 ```
+### Step 2
+- Create a new file in the folder where you have `main.py` and name it `.env`
+- This is for storing your discord token safely
+- Now open this file using notepad or any other text editor
+- Add your token inside it like this
+```
+TOKEN = "Oxjgytdfyffuy-gjhgkhkhfc7v8-nkgufjygkjhkfdrreryuih"
+```
+- Don't forget to replace my token with your token :)
 
 
 ## Key Features 
