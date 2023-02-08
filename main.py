@@ -3,18 +3,19 @@ from discord.ext import commands, tasks
 import time
 import asyncio
 from webserver import keep_alive
+from dotenv import load_dotenv
 import os
 import random
 import traceback
 version = 'v2.7.4'
-
+load_dotenv()
 keep_alive()
 
 #Fill up these values to use the selfbot
-self_bot_prefix="."
-token = os.environ["TOKEN"]
-channelid= 1071656675850854510
-ownerid = 866186448309583903
+self_bot_prefix="."                 #Change your prefix if you don't like it
+token = os.getenv("TOKEN")          #Don't enter your token here, see README.md file to know how to enter token
+channelid= 1071656675850854510      #Enter the channel id where you want the owo self bot to work
+ownerid = 866186448309583903        #Enter the owner's id who will control this selfbot
 
 
 
