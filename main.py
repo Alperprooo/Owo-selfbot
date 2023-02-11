@@ -18,7 +18,6 @@ channelid= 1071656675850854510      #Enter the channel id where you want the owo
 ownerid = 866186448309583903        #Enter the owner's id who will control this selfbot
 
 
-
 bot = commands.Bot(command_prefix=self_bot_prefix)
 owoid=408785106942164992
 intervals = [2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6]
@@ -87,58 +86,116 @@ async def spam():
 async def before_spam():
     await bot.wait_until_ready()
 
-spam.start()
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} is online")
-
-@bot.command()
-async def say(ctx, *, args):
-    if ctx.author.id==ownerid:
-        await ctx.send(args)
-
+    bot.db = await aiosqlite.connect("owo.db")
+    await bot.db.execute(
+        "CREATE TABLE IF NOT EXISTS owos (command str)")
+    print("owos table created!!")
+    cur = await bot.db.execute("SELECT command from owos")
+    res = await cur.fetchone()
+    if res is None:
+        await bot.db.execute("INSERT OR IGNORE INTO owos (command) VALUES (?)",("hold",))
+    elif res[0]=="hold":
+        spam.cancel()
+    elif res[0]=="grind":
+        spam.start()
+    await bot.db.commit()
+    
 @bot.event
 async def on_message(message):
-    user=bot.get_user(bot.user.id)
     if message.guild:
-        if f"{bot.user.name}! Please complete your captcha" in message.content:
+        if message.channel.id== channelid:
             if message.author.id==owoid:
-                member = message.guild.get_member(bot.user.id)
-                if f"{member.display_name}! Please complete your captcha" in message.content:
+                if f"{bot.user.name}! Please complete your captcha" in message.content:
+                    member = message.guild.get_member(bot.user.id)
+                    if f"{member.display_name}! Please complete your captcha" in message.content:
+                        spam.cancel()
+                        cur = await bot.db.execute("SELECT command from owos")
+                        res = await cur.fetchone()
+                        if res is None:
+                            await bot.db.execute("INSERT OR IGNORE INTO owos (command) VALUES (?)",("hold",))
+                        else:
+                            await bot.db.execute("UPDATE owos SET command = ?",("hold",))
+                        await bot.db.commit()
+            elif message.author.id==ownerid:
+                if f"{self_bot_prefix}say" in message.content:
+                    msg = message.content.split(" ",1)[1]
+                    await message.channel.send(msg)
+                elif f"{self_bot_prefix}grind" in message.content:
+                    await message.delete()
+                    await message.channel.send("Ok, let's go")
+                    spam.start()
+                    cur = await bot.db.execute("SELECT command from owos")
+                    res = await cur.fetchone()
+                    if res is None:
+                        await bot.db.execute("INSERT OR IGNORE INTO owos (command) VALUES (?)",("grind",))
+                    else:
+                        await bot.db.execute("UPDATE owos SET command = ?",("grind",))
+                    await bot.db.commit()
+                elif f"{self_bot_prefix}hold" in message.content:
+                    await message.delete()
+                    await message.channel.send('Got it bro!')
                     spam.cancel()
-        elif message.author.id==ownerid:
-            if f"{self_bot_prefix}say" in message.content:
-                msg = message.content.split(" ",1)[1]
-                await message.channel.send(msg)
-            elif f"{self_bot_prefix}grind" in message.content:
-                await message.delete()
-                await message.channel.send("Ok, let's go")
-                spam.start()
-
-            elif f"{self_bot_prefix}hold" in message.content:
-                await message.delete()
-                await message.channel.send('Got it bro!')
-                spam.cancel()
-
-    elif message.channel==user.dm_channel:
+                    cur = await bot.db.execute("SELECT command from owos")
+                    res = await cur.fetchone()
+                    if res is None:
+                        await bot.db.execute("INSERT OR IGNORE INTO owos (command) VALUES (?)",("hold",))
+                    else:
+                        await bot.db.execute("UPDATE owos SET command = ?",("hold",))
+                    await bot.db.commit()
+        
+    elif message.channel in bot.private_channels:
         if message.author.id==owoid:
             if "Are you a real human?" in message.content:
                 spam.cancel()
                 image = message.attachments[0]
                 user=bot.get_user(ownerid)
-                await user.send(image)
+                cur = await bot.db.execute("SELECT command from owos")
+                res = await cur.fetchone()
+                if res is None:
+                    await bot.db.execute("INSERT OR IGNORE INTO owos (command) VALUES (?)",("hold",))
+                else:
+                    await bot.db.execute("UPDATE owos SET command = ?",("hold",))
+                await bot.db.commit()
+                await user.send(str(image))
             elif "I have verified that you are human! Thank you!" in message.content:
                 msg = message.content
                 user=bot.get_user(ownerid)
                 await user.send(msg)
+                cur = await bot.db.execute("SELECT command from owos")
+                res = await cur.fetchone()
+                if res is None:
+                    await bot.db.execute("INSERT OR IGNORE INTO owos (command) VALUES (?)",("grind",))
+                else:
+                    await bot.db.execute("UPDATE owos SET command = ?",("grind",))
+                await bot.db.commit()
                 spam.start()
+            elif f"{self_bot_prefix}grind" in message.content:
+                spam.start()
+                cur = await bot.db.execute("SELECT command from owos")
+                res = await cur.fetchone()
+                if res is None:
+                    await bot.db.execute("INSERT OR IGNORE INTO owos (command) VALUES (?)",("grind",))
+                else:
+                    await bot.db.execute("UPDATE owos SET command = ?",("grind",))
+                await bot.db.commit()
+            elif f"{self_bot_prefix}hold" in message.content:
+                spam.cancel()
+                cur = await bot.db.execute("SELECT command from owos")
+                res = await cur.fetchone()
+                if res is None:
+                    await bot.db.execute("INSERT OR IGNORE INTO owos (command) VALUES (?)",("hold",))
+                else:
+                    await bot.db.execute("UPDATE owos SET command = ?",("hold",))
+                await bot.db.commit()
                 
         elif message.author.id==ownerid:
             text = message.content.strip()
             if "captcha" in text.lower():
                 captcha=text.split(" ",1)[1]
-                user=bot.get_user(owoid)
-                await user.send(captcha)
+                await bot.user.send(captcha)
             
 
 try:
